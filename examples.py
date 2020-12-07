@@ -51,9 +51,8 @@ def public_timeline_with_filtering(after, before):
     return requests.get(BASE + '/public_timeline', headers=headers)
 
 
-# user_id here is included in the url to make the prev/next urls returned with the pagination work
-def private_timeline(user_id, auth_token):
-    return requests.get(BASE + '/'+str(user_id)+'/private_timeline', headers={"auth_token": auth_token})
+def private_timeline(auth_token):
+    return requests.get(BASE + '/private_timeline', headers={"auth_token": auth_token})
 
 
 

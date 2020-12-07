@@ -138,6 +138,7 @@ class Post(db.Model):
             'body': self.body,
             'body_html': self.body_html,
             'timestamp': self.timestamp,
+            'post_id': self.id,
             'author_id': self.author_id,
             'image_file_url': url_for('static', filename=self.image_file) if self.image_file else None
         }

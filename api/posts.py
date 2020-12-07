@@ -83,18 +83,16 @@ def get_public_timeline():
                                    'count': pagination.total}}), 200
 
 
-@api.route('/<int:user_id>/private_timeline', methods=['GET'])
+@api.route('/private_timeline', methods=['GET'])
 @verify_login
-def get_private_timeline(user_id):
+def get_private_timeline():
     from models import Post
-
-    user = g.logged_in_user
-    if user.id != user_id:
-        return jsonify({"message": "user ID does not match"}), 403
 
     page = request.args.get('page', 1, type=int)
 
+    user = g.logged_in_user
     query = user.followed_posts
+
     if 'after' in request.headers:
         after = parser.parse(request.headers['after'])
         query = query.filter(Post.timestamp > after)
@@ -108,10 +106,10 @@ def get_private_timeline(user_id):
     posts = pagination.items
     prev = None
     if pagination.has_prev:
-        prev = url_for('api.get_private_timeline', _external=True, user_id=user.id, page=page - 1)
+        prev = url_for('api.get_private_timeline', _external=True, page=page - 1)
     next = None
     if pagination.has_next:
-        next = url_for('api.get_private_timeline', _external=True,  user_id=user.id, page=page + 1)
+        next = url_for('api.get_private_timeline', _external=True, page=page + 1)
 
     return jsonify({'posts': [post.to_json() for post in posts],
                     'pagination': {'prev': prev,
