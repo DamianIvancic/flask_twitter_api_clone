@@ -24,7 +24,7 @@ def unfollow(followed_username, auth_token):
 
 
 def create_post_no_image(body, auth_token):
-    return requests.post(BASE + '/create_post', json={"body": body}, headers={"auth_token": auth_token})
+    return requests.post(BASE + '/post', json={"body": body}, headers={"auth_token": auth_token})
 
 
 def create_post_with_image(body, path_to_image, auth_token):
@@ -32,12 +32,12 @@ def create_post_with_image(body, path_to_image, auth_token):
         img_data = base64.encodebytes(img_file.read())
         img_string = img_data.decode('utf-8')
 
-        return requests.post(BASE + '/create_post', json={"body": body, "img_string": img_string},
+        return requests.post(BASE + '/post', json={"body": body, "img_string": img_string},
                              headers={"auth_token": auth_token})
 
 
 def delete_post(post_id, auth_token):
-    return requests.delete(BASE + '/delete_post', json={"post_id": post_id},
+    return requests.delete(BASE + '/post', json={"post_id": post_id},
                          headers={"auth_token": auth_token})
 
 
@@ -53,7 +53,6 @@ def public_timeline_with_filtering(after, before):
 
 def private_timeline(auth_token):
     return requests.get(BASE + '/private_timeline', headers={"auth_token": auth_token})
-
 
 
 
