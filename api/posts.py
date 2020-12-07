@@ -10,7 +10,7 @@ from utils import save_picture
 # rely on a token being sent with the request
 
 
-@api.route('/create_post', methods=['POST'])
+@api.route('/post', methods=['POST'])
 @verify_login
 def create_post():
     from models import Post
@@ -28,7 +28,7 @@ def create_post():
     return jsonify({'post': post.to_json()}), 201
 
 
-@api.route('/delete_post', methods=['DELETE'])
+@api.route('/post', methods=['DELETE'])
 @verify_login
 def delete_post():
     from models import Post
@@ -58,22 +58,16 @@ def get_public_timeline():
 
     page = request.args.get('page', 1, type=int)
 
-    pagination = None
-    if 'after' in request.headers and 'before' in request.headers:
+    query = Post.query
+    if 'after' in request.headers:
         after = parser.parse(request.headers['after'])
+        query = query.filter(Post.timestamp > after)
+
+    if 'before' in request.headers:
         before = parser.parse(request.headers['before'])
-        pagination = Post.query.filter(Post.timestamp > after).filter(Post.timestamp < before).paginate(
-            page, per_page=5, error_out=True)
-    elif 'after' in request.headers:
-        after = parser.parse(request.headers['after'])
-        pagination = Post.query.filter(Post.timestamp > after).paginate(page, per_page=5, error_out=True)
-    elif 'before' in request.headers:
-        before = parser.parse(request.headers['before'])
-        pagination = Post.query.filter(Post.timestamp < before).paginate(page, per_page=5, error_out=True)
-    else:
-        pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
-            page, per_page=5,
-            error_out=True)
+        query = query.filter(Post.timestamp < before)
+
+    pagination = query.order_by(Post.timestamp.desc()).paginate(page, per_page=5, error_out=True)
 
     posts = pagination.items
     prev = None
@@ -100,22 +94,16 @@ def get_private_timeline(user_id):
 
     page = request.args.get('page', 1, type=int)
 
-    pagination = None
-    if 'after' in request.headers and 'before' in request.headers:
+    query = user.followed_posts
+    if 'after' in request.headers:
         after = parser.parse(request.headers['after'])
+        query = query.filter(Post.timestamp > after)
+
+    if 'before' in request.headers:
         before = parser.parse(request.headers['before'])
-        pagination = user.followed_posts.filter(Post.timestamp > after).filter(Post.timestamp < before).paginate(
-            page, per_page=5, error_out=True)
-    elif 'after' in request.headers:
-        after = parser.parse(request.headers['after'])
-        pagination = user.followed_posts.filter(Post.timestamp > after).paginate(page, per_page=5, error_out=True)
-    elif 'before' in request.headers:
-        before = parser.parse(request.headers['before'])
-        pagination = user.followed_posts.filter(Post.timestamp < before).paginate(page, per_page=5, error_out=True)
-    else:
-        pagination = user.followed_posts.order_by(Post.timestamp.desc()).paginate(
-            page, per_page=5,
-            error_out=True)
+        query = query.filter(Post.timestamp < before)
+
+    pagination = query.order_by(Post.timestamp.desc()).paginate(page, per_page=5, error_out=True)
 
     posts = pagination.items
     prev = None
